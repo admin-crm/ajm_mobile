@@ -11,13 +11,34 @@ class ApplyLeaveScreen extends StatefulWidget {
 
 class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _selectedType = 'Casual Leave';
-  final List<String> _leaveTypes = ['Casual Leave', 'Sick Leave', 'Earned Leave'];
-  
+  int? _selectedTypeId;
+  List<dynamic> _leaveTypes = [];
+
   DateTime? _startDate;
   DateTime? _endDate;
   final _reasonController = TextEditingController();
   bool _isSubmitting = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLeaveTypes();
+  }
+
+  Future<void> _loadLeaveTypes() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final types = await auth.apiService.getLeaveTypes();
+    if (mounted) {
+      setState(() {
+        _leaveTypes = types;
+        _isLoading = false;
+        if (types.isNotEmpty) {
+          _selectedTypeId = types[0]['id'];
+        }
+      });
+    }
+  }
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -27,12 +48,18 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
       );
       return;
     }
+    if (_selectedTypeId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a leave type')),
+      );
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final success = await auth.apiService.applyLeave({
-      'leave_type': _selectedType,
+      'leave_type_id': _selectedTypeId,
       'start_date': _startDate!.toIso8601String().split('T')[0],
       'end_date': _endDate!.toIso8601String().split('T')[0],
       'reason': _reasonController.text,
@@ -93,18 +120,21 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  DropdownButtonFormField<String>(
-                    value: _selectedType,
+                  if (_isLoading)
+                    const CircularProgressIndicator()
+                  else
+                    DropdownButtonFormField<int>(
+                    value: _selectedTypeId,
                     decoration: const InputDecoration(labelText: 'Leave Type'),
                     items: _leaveTypes.map((type) {
                       return DropdownMenuItem(
-                        value: type,
-                        child: Text(type),
+                        value: type['id'] as int,
+                        child: Text(type['name'] ?? ''),
                       );
                     }).toList(),
                     onChanged: (val) {
                       setState(() {
-                        _selectedType = val!;
+                        _selectedTypeId = val;
                       });
                     },
                   ),

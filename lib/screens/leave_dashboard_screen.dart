@@ -170,7 +170,17 @@ class _LeaveDashboardScreenState extends State<LeaveDashboardScreen> {
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final app = _applications[index];
-        final type = app['leave_type'] ?? 'Casual Leave';
+
+        // Handle nested leave_type object or string
+        String type = 'Leave';
+        if (app['leave_type'] != null) {
+          if (app['leave_type'] is Map) {
+            type = app['leave_type']['name'] ?? 'Leave';
+          } else {
+            type = app['leave_type'].toString();
+          }
+        }
+
         final status = app['status'] ?? 'Pending';
         final fromDate = app['start_date'] ?? 'N/A';
         final toDate = app['end_date'] ?? 'N/A';
