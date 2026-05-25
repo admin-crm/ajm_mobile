@@ -182,8 +182,22 @@ class _LeaveDashboardScreenState extends State<LeaveDashboardScreen> {
         }
 
         final status = app['status'] ?? 'Pending';
-        final fromDate = app['start_date'] ?? 'N/A';
-        final toDate = app['end_date'] ?? 'N/A';
+        
+        String formatDate(dynamic dateStr) {
+          if (dateStr == null || dateStr == 'N/A') return 'N/A';
+          try {
+            final date = DateTime.parse(dateStr.toString());
+            final day = date.day.toString().padLeft(2, '0');
+            final month = date.month.toString().padLeft(2, '0');
+            final year = date.year.toString().substring(2);
+            return '$day/$month/$year';
+          } catch (_) {
+            return dateStr.toString();
+          }
+        }
+        
+        final fromDate = formatDate(app['start_date']);
+        final toDate = formatDate(app['end_date']);
 
         Color statusColor = Colors.orange;
         if (status.toString().toLowerCase() == 'approved') {
