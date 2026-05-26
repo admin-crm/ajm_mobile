@@ -197,4 +197,36 @@ class ApiService {
       return [];
     }
   }
+
+  Future<Map<String, dynamic>> getDashboardData() async {
+    await _loadToken();
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/dashboard'),
+        headers: _getHeaders(),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      throw Exception('Failed to load dashboard data');
+    } catch (e) {
+      throw Exception('Failed to load dashboard data: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getProfileData() async {
+    await _loadToken();
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/profile'),
+        headers: _getHeaders(),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      throw Exception('Failed to load profile data');
+    } catch (e) {
+      throw Exception('Failed to load profile data: $e');
+    }
+  }
 }

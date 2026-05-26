@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
-import 'screens/leave_dashboard_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() {
   runApp(
@@ -34,7 +34,7 @@ class HrmMobileApp extends StatelessWidget {
             );
           }
           if (auth.isAuthenticated) {
-            return const LeaveDashboardScreen();
+            return const MainScreen();
           }
           return const LoginScreen();
         },
