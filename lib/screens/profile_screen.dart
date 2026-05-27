@@ -288,7 +288,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   value,
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark ? Colors.white80 : Colors.black87,
+                    color: isDark ? Colors.white.withOpacity(0.8) : Colors.black87,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
