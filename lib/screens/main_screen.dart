@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'leave_dashboard_screen.dart';
+import 'permission_dashboard_screen.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = const [
     HomeScreen(),
     LeaveDashboardScreen(),
+    PermissionDashboardScreen(),
     ProfileScreen(),
   ];
 
@@ -64,6 +66,11 @@ class _MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.beach_access_outlined),
               activeIcon: Icon(Icons.beach_access),
               label: 'Leave',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.access_time_outlined),
+              activeIcon: Icon(Icons.access_time),
+              label: 'Permission',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),

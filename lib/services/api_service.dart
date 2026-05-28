@@ -179,6 +179,63 @@ class ApiService {
     }
   }
 
+  Future<List<dynamic>> getShortPermissions() async {
+    await _loadToken();
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/short-permissions'),
+        headers: _getHeaders(),
+      );
+
+      debugPrint('Short permissions response: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        try {
+          final data = jsonDecode(response.body);
+          return data['data'] ?? data;
+        } catch (e) {
+          throw Exception('Failed to parse short permissions JSON');
+        }
+      } else {
+        throw Exception('Failed to load short permissions: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load short permissions: $e');
+    }
+  }
+
+  Future<bool> applyShortPermission(Map<String, dynamic> permissionData) async {
+    await _loadToken();
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl/api/short-permissions'),
+        headers: _getHeaders(),
+        body: jsonEncode(permissionData),
+      );
+
+      debugPrint('Apply short permission response: ${response.statusCode} - ${response.body}');
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      debugPrint('Apply short permission error: $e');
+      return false;
+    }
+  }
+
+  Future<bool> cancelShortPermission(int id) async {
+    await _loadToken();
+    try {
+      final response = await _client.delete(
+        Uri.parse('$baseUrl/api/short-permissions/$id'),
+        headers: _getHeaders(),
+      );
+
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<List<dynamic>> getLeaveTypes() async {
     await _loadToken();
     try {

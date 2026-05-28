@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'apply_leave_screen.dart';
+import 'apply_permission_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,6 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildStatsGrid(theme),
                     const SizedBox(height: 24),
                     _buildAttendanceSection(theme),
+                    const SizedBox(height: 24),
+                    _buildQuickActions(theme),
                     const SizedBox(height: 24),
                     _buildAnnouncementsSection(theme),
                   ],
@@ -408,6 +412,93 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
       ],
+    );
+  }
+
+  Widget _buildQuickActions(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Quick Actions', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                'Apply Leave',
+                Icons.beach_access_rounded,
+                theme.primaryColor,
+                theme,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ApplyLeaveScreen()),
+                ).then((value) => _fetchDashboardData()),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildActionCard(
+                'Apply Permission',
+                Icons.access_time_filled_rounded,
+                Colors.orange,
+                theme,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ApplyPermissionScreen()),
+                ).then((value) => _fetchDashboardData()),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionCard(
+    String title,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+    VoidCallback onTap,
+  ) {
+    final isDark = theme.brightness == Brightness.dark;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark ? Colors.white10 : Colors.black12,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black26 : Colors.black12,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
