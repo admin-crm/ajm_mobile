@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
 import 'providers/auth_provider.dart';
-import 'screens/login_screen.dart';
-import 'screens/main_screen.dart';
+import 'screens/auth_flow.dart';
 
 void main() {
   runApp(
@@ -26,19 +25,7 @@ class HrmMobileApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: Consumer<AuthProvider>(
-        builder: (context, auth, _) {
-          if (auth.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (auth.isAuthenticated) {
-            return const MainScreen();
-          }
-          return const LoginScreen();
-        },
-      ),
+      home: const AuthFlow(),
       debugShowCheckedModeBanner: false,
     );
   }

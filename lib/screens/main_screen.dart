@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'leave_dashboard_screen.dart';
 import 'permission_dashboard_screen.dart';
+import 'reports_screen.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(),
     LeaveDashboardScreen(),
     PermissionDashboardScreen(),
+    ReportsScreen(),
     ProfileScreen(),
   ];
 
@@ -71,6 +73,11 @@ class _MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.access_time_outlined),
               activeIcon: Icon(Icons.access_time),
               label: 'Permission',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.analytics_outlined),
+              activeIcon: Icon(Icons.analytics),
+              label: 'Reports',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),

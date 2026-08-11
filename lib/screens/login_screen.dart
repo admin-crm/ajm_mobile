@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/biometric_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  final BiometricAuthService _biometricAuth = BiometricAuthService();
 
   void _login() async {
     setState(() {
@@ -21,13 +23,15 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    final success = await auth.login(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
-    if (!success && mounted) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final success = await auth.login(email, password);
+
+    if (success) {
+      await _biometricAuth.storeCredentials(email, password);
+    } else if (mounted) {
       setState(() {
         _errorMessage = 'Login failed. Please check your credentials.';
         _isLoading = false;

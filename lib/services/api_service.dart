@@ -1,25 +1,22 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:http/browser_client.dart';
-import 'package:http/io_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/downloader.dart';
+import '../utils/client_stub.dart'
+    if (dart.library.html) '../utils/client_web.dart'
+    if (dart.library.io) '../utils/client_mobile.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://ajmhrm.cbeezai.com';
+  static const String baseUrl = 'https://hrm.cbeezai.com';
+  //  static const String baseUrl = 'http://127.0.0.1:8000';
   static const String tokenKey = 'api_token';
 
   late http.Client _client;
   String? _token;
 
   ApiService() {
-    if (kIsWeb) {
-      var browserClient = BrowserClient();
-      browserClient.withCredentials = true;
-      _client = browserClient;
-    } else {
-      _client = IOClient();
-    }
+    _client = getClient();
   }
 
   Future<void> _loadToken() async {
@@ -122,11 +119,18 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> getLeaveApplications() async {
+  Future<List<dynamic>> getLeaveApplications({String? startDate, String? endDate}) async {
     await _loadToken();
     try {
+      final queryParams = <String, String>{};
+      if (startDate != null) queryParams['start_date'] = startDate;
+      if (endDate != null) queryParams['end_date'] = endDate;
+
+      final baseUri = Uri.parse('$baseUrl/api/leave-applications');
+      final uri = queryParams.isNotEmpty ? baseUri.replace(queryParameters: queryParams) : baseUri;
+
       final response = await _client.get(
-        Uri.parse('$baseUrl/api/leave-applications'),
+        uri,
         headers: _getHeaders(),
       );
 
@@ -179,11 +183,18 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> getShortPermissions() async {
+  Future<List<dynamic>> getShortPermissions({String? startDate, String? endDate}) async {
     await _loadToken();
     try {
+      final queryParams = <String, String>{};
+      if (startDate != null) queryParams['start_date'] = startDate;
+      if (endDate != null) queryParams['end_date'] = endDate;
+
+      final baseUri = Uri.parse('$baseUrl/api/short-permissions');
+      final uri = queryParams.isNotEmpty ? baseUri.replace(queryParameters: queryParams) : baseUri;
+
       final response = await _client.get(
-        Uri.parse('$baseUrl/api/short-permissions'),
+        uri,
         headers: _getHeaders(),
       );
 
@@ -201,6 +212,39 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Failed to load short permissions: $e');
+    }
+  }
+
+  Future<List<dynamic>> getAttendanceRecords({String? startDate, String? endDate, String? status}) async {
+    await _loadToken();
+    try {
+      final queryParams = <String, String>{};
+      if (startDate != null) queryParams['start_date'] = startDate;
+      if (endDate != null) queryParams['end_date'] = endDate;
+      if (status != null) queryParams['status'] = status;
+
+      final baseUri = Uri.parse('$baseUrl/api/attendance-records');
+      final uri = queryParams.isNotEmpty ? baseUri.replace(queryParameters: queryParams) : baseUri;
+
+      final response = await _client.get(
+        uri,
+        headers: _getHeaders(),
+      );
+
+      debugPrint('Attendance records response: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        try {
+          final data = jsonDecode(response.body);
+          return data['data'] ?? data;
+        } catch (e) {
+          throw Exception('Failed to parse attendance records JSON');
+        }
+      } else {
+        throw Exception('Failed to load attendance records: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load attendance records: $e');
     }
   }
 
@@ -285,5 +329,30 @@ class ApiService {
     } catch (e) {
       throw Exception('Failed to load profile data: $e');
     }
+  }
+
+  Future<List<dynamic>> getPayslips() async {
+    await _loadToken();
+    try {
+      final response = await _client.get(
+        Uri.parse('$baseUrl/api/payslips'),
+        headers: _getHeaders(),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['data'] ?? [];
+      }
+      throw Exception('Failed to load payslips: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Failed to load payslips: $e');
+    }
+  }
+
+  Future<void> downloadPayslip(int id, String payslipNumber) async {
+    await _loadToken();
+    final url = '$baseUrl/api/payslips/$id/download';
+    final filename = 'payslip-$payslipNumber.pdf';
+    final headers = _getHeaders();
+    await FileDownloader.downloadFile(url, filename, headers);
   }
 }

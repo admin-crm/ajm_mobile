@@ -16,6 +16,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
 
   DateTime? _startDate;
   DateTime? _endDate;
+  String _selectedDuration = 'full_day';
   final _reasonController = TextEditingController();
   bool _isSubmitting = false;
   bool _isLoading = true;
@@ -55,6 +56,10 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
       return;
     }
 
+    if (_selectedDuration != 'full_day') {
+      _endDate = _startDate;
+    }
+
     setState(() => _isSubmitting = true);
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
@@ -62,6 +67,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
       'leave_type_id': _selectedTypeId,
       'start_date': _startDate!.toIso8601String().split('T')[0],
       'end_date': _endDate!.toIso8601String().split('T')[0],
+      'leave_duration': _selectedDuration,
       'reason': _reasonController.text,
     });
 
@@ -94,7 +100,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
       setState(() {
         if (isStart) {
           _startDate = picked;
-          if (_endDate != null && _endDate!.isBefore(_startDate!)) {
+          if (_selectedDuration != 'full_day') {
+            _endDate = picked;
+          } else if (_endDate != null && _endDate!.isBefore(_startDate!)) {
             _endDate = null;
           }
         } else {
@@ -139,6 +147,33 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedDuration,
+                    decoration: const InputDecoration(labelText: 'Leave Duration'),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'full_day',
+                        child: Text('Full Day'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'first_half',
+                        child: Text('First Half'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'second_half',
+                        child: Text('Second Half'),
+                      ),
+                    ],
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedDuration = val ?? 'full_day';
+                        if (_selectedDuration != 'full_day' && _startDate != null) {
+                          _endDate = _startDate;
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -157,13 +192,23 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: InkWell(
-                          onTap: () => _selectDate(context, false),
+                          onTap: _selectedDuration == 'full_day' 
+                            ? () => _selectDate(context, false) 
+                            : null,
                           child: InputDecorator(
-                            decoration: const InputDecoration(labelText: 'To Date'),
+                            decoration: InputDecoration(
+                              labelText: 'To Date',
+                              enabled: _selectedDuration == 'full_day',
+                            ),
                             child: Text(
                               _endDate != null 
                                 ? "${_endDate!.toLocal()}".split(' ')[0] 
                                 : 'Select Date',
+                              style: TextStyle(
+                                color: _selectedDuration == 'full_day' 
+                                  ? null 
+                                  : Colors.grey,
+                              ),
                             ),
                           ),
                         ),

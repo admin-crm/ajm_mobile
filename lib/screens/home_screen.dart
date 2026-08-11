@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'apply_leave_screen.dart';
 import 'apply_permission_screen.dart';
+import 'reports_screen.dart';
+import 'payslips_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -445,6 +447,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const ApplyPermissionScreen()),
+                ).then((value) => _fetchDashboardData()),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                'My Payslips',
+                Icons.receipt_long_rounded,
+                Colors.teal,
+                theme,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PayslipsScreen()),
+                ).then((value) => _fetchDashboardData()),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildActionCard(
+                'Reports',
+                Icons.analytics_rounded,
+                Colors.green,
+                theme,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ReportsScreen()),
                 ).then((value) => _fetchDashboardData()),
               ),
             ),
